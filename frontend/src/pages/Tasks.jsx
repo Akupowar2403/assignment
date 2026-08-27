@@ -227,6 +227,7 @@ export function TasksPage() {
           open
           taskId={openTaskId}
           onClose={() => setOpenTaskId(null)}
+          onChanged={reload}
           onEdit={(task) => {
             setOpenTaskId(null)
             setEditing(task)

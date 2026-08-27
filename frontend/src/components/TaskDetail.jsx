@@ -4,7 +4,8 @@ import { useApi } from '../hooks/useApi'
 import { formatDate, formatDateTime } from '../lib/format'
 import { taskService } from '../services/tasks'
 import { Avatar } from './Avatar'
-import { PriorityBadge, StatusBadge } from './TaskBadges'
+import { PriorityBadge } from './TaskBadges'
+import { StatusControl } from './StatusControl'
 import { Button } from './ui/Button'
 import { Modal } from './ui/Modal'
 import { ErrorState, Spinner } from './ui/States'
@@ -91,10 +92,16 @@ function CommentThread({ taskId }) {
   )
 }
 
-export function TaskDetail({ taskId, open, onClose, onEdit, onDeleted }) {
+export function TaskDetail({ taskId, open, onClose, onEdit, onDeleted, onChanged }) {
   const { data: task, loading, error, reload } = useApi(() => taskService.get(taskId), [taskId])
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Keep both the panel and the list behind it in step after an inline edit.
+  const refresh = () => {
+    reload()
+    onChanged?.()
+  }
 
   const remove = async () => {
     setDeleting(true)
@@ -146,8 +153,8 @@ export function TaskDetail({ taskId, open, onClose, onEdit, onDeleted }) {
 
       {task && (
         <div className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge value={task.status} />
+          <div className="flex flex-wrap items-center gap-3">
+            <StatusControl task={task} onChanged={refresh} />
             <PriorityBadge value={task.priority} />
             {task.is_overdue && (
               <span className="text-[13px] font-medium text-sig-red">Overdue</span>
