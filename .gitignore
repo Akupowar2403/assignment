@@ -1,0 +1,30 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+backend/tests/
+backend/pytest.ini
+backend/requirements-dev.txt
+
+# Local database
+*.db
+*.sqlite3
+
+# Node
+node_modules/
+dist/
+*.local
+
+# Secrets - .env.example is committed instead
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,179 @@
+import { useState } from 'react'
+import { useCurrentUser } from '../context/CurrentUserContext'
+import { useApi } from '../hooks/useApi'
+import { formatDate, formatDateTime } from '../lib/format'
+import { taskService } from '../services/tasks'
+import { Avatar } from './Avatar'
+import { PriorityBadge, StatusBadge } from './TaskBadges'
+import { Button } from './ui/Button'
+import { Modal } from './ui/Modal'
+import { ErrorState, Spinner } from './ui/States'
+
+function Detail({ label, children }) {
+  return (
+    <div>
+      <dt className="text-xs font-medium tracking-wide text-muted uppercase">{label}</dt>
+      <dd className="mt-1 text-sm text-ink">{children}</dd>
+    </div>
+  )
+}
+
+function CommentThread({ taskId }) {
+  const { currentUserId, users } = useCurrentUser()
+  const { data: comments, loading, error, reload } = useApi(
+    () => taskService.listComments(taskId),
+    [taskId],
+  )
+  const [draft, setDraft] = useState('')
+  const [posting, setPosting] = useState(false)
+  const [postError, setPostError] = useState(null)
+
+  const post = async (e) => {
+    e.preventDefault()
+    setPosting(true)
+    setPostError(null)
+    try {
+      await taskService.addComment(taskId, { user_id: currentUserId, comment: draft.trim() })
+      setDraft('')
+      reload()
+    } catch (err) {
+      setPostError(err)
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  const author = users.find((u) => u.id === currentUserId)
+
+  return (
+    <div className="space-y-3">
+      {error && <ErrorState error={error} onRetry={reload} />}
+      {loading && <Spinner className="text-brand" />}
+
+      {comments?.length === 0 && !loading && (
+        <p className="text-sm text-muted">No notes yet. Add the first one below.</p>
+      )}
+
+      <ul className="space-y-3">
+        {comments?.map((comment) => (
+          <li key={comment.id} className="flex gap-3">
+            <Avatar user={comment.user} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-muted">
+                <span className="font-medium text-ink">{comment.user?.name ?? 'Removed user'}</span>
+                {' · '}
+                {formatDateTime(comment.created_at)}
+              </p>
+              <p className="mt-0.5 text-sm whitespace-pre-wrap text-ink">{comment.comment}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {postError && <ErrorState error={postError} />}
+      <form onSubmit={post} className="flex items-start gap-2 border-t border-line pt-3">
+        <Avatar user={author} size="sm" />
+        <textarea
+          rows={2}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={`Add a note as ${author?.name ?? '…'}`}
+          className="flex-1 resize-y rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none transition placeholder:text-muted/70 focus:border-brand focus:ring-2 focus:ring-brand/20"
+        />
+        <Button size="sm" type="submit" disabled={posting || !draft.trim()}>
+          {posting && <Spinner />}
+          Post
+        </Button>
+      </form>
+    </div>
+  )
+}
+
+export function TaskDetail({ taskId, open, onClose, onEdit, onDeleted }) {
+  const { data: task, loading, error, reload } = useApi(() => taskService.get(taskId), [taskId])
+  const [confirming, setConfirming] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const remove = async () => {
+    setDeleting(true)
+    try {
+      await taskService.remove(taskId)
+      onDeleted()
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <Modal
+      open={open}
+      title={loading ? 'Loading…' : (task?.title ?? 'Task')}
+      onClose={onClose}
+      width="max-w-2xl"
+      footer={
+        task && (
+          <>
+            {confirming ? (
+              <>
+                <span className="mr-auto text-sm text-muted">Delete this task and its notes?</span>
+                <Button variant="secondary" onClick={() => setConfirming(false)} disabled={deleting}>
+                  Cancel
+                </Button>
+                <Button variant="danger" onClick={remove} disabled={deleting}>
+                  {deleting && <Spinner />}
+                  Delete
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={() => setConfirming(true)}>
+                  Delete
+                </Button>
+                <Button variant="secondary" onClick={onClose}>
+                  Close
+                </Button>
+                <Button onClick={() => onEdit(task)}>Edit task</Button>
+              </>
+            )}
+          </>
+        )
+      }
+    >
+      {error && <ErrorState error={error} onRetry={reload} />}
+      {loading && <Spinner className="text-brand" />}
+
+      {task && (
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge value={task.status} />
+            <PriorityBadge value={task.priority} />
+            {task.is_overdue && (
+              <span className="text-xs font-medium text-red-600">Overdue</span>
+            )}
+          </div>
+
+          <p className="text-sm whitespace-pre-wrap text-ink">
+            {task.description || <span className="text-muted italic">No description.</span>}
+          </p>
+
+          <dl className="grid grid-cols-2 gap-4 rounded-xl bg-canvas p-4 sm:grid-cols-4">
+            <Detail label="Assignee">
+              <span className="flex items-center gap-2">
+                <Avatar user={task.assignee} size="sm" />
+                {task.assignee?.name ?? 'Unassigned'}
+              </span>
+            </Detail>
+            <Detail label="Due">{formatDate(task.due_date)}</Detail>
+            <Detail label="Created">{formatDate(task.created_at)}</Detail>
+            <Detail label="Updated">{formatDateTime(task.updated_at)}</Detail>
+          </dl>
+
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-ink">Notes</h3>
+            <CommentThread taskId={taskId} />
+          </div>
+        </div>
+      )}
+    </Modal>
+  )
+}

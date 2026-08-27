@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-canvas: oklch(0.98 0.005 265);
+  --color-ink: oklch(0.24 0.02 265);
+  --color-muted: oklch(0.52 0.02 265);
+  --color-line: oklch(0.91 0.008 265);
+  --color-brand: oklch(0.52 0.17 265);
+  --color-brand-soft: oklch(0.95 0.03 265);
+}
+
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
