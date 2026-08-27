@@ -10,7 +10,7 @@ export function Spinner({ className = '' }) {
 
 export function EmptyState({ title, description, action }) {
   return (
-    <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
+    <div className="flex flex-col items-center gap-1.5 px-6 py-14 text-center">
       <p className="text-sm font-medium text-ink">{title}</p>
       {description && <p className="max-w-sm text-sm text-muted">{description}</p>}
       {action && <div className="mt-3">{action}</div>}
@@ -20,10 +20,11 @@ export function EmptyState({ title, description, action }) {
 
 export function ErrorState({ error, onRetry }) {
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      <span>{error?.message ?? 'Something went wrong.'}</span>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-rule bg-surface px-3 py-2.5 text-sm">
+      <span aria-hidden className="size-2 shrink-0 rounded-full bg-sig-red" />
+      <span className="text-ink">{error?.message ?? 'Something went wrong.'}</span>
       {onRetry && (
-        <button onClick={onRetry} className="ml-3 font-medium underline underline-offset-2">
+        <button onClick={onRetry} className="font-medium text-ink underline underline-offset-2">
           Retry
         </button>
       )}

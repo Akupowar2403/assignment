@@ -11,7 +11,7 @@ import { Pagination } from '../components/ui/Pagination'
 import { EmptyState, ErrorState } from '../components/ui/States'
 import { useApi } from '../hooks/useApi'
 import { useDebounced } from '../hooks/useDebounced'
-import { PAGE_SIZE } from '../lib/constants'
+import { PAGE_SIZE, priorityColor } from '../lib/constants'
 import { formatDate, formatDateTime } from '../lib/format'
 import { taskService } from '../services/tasks'
 
@@ -100,7 +100,7 @@ export function TasksPage() {
           <div className="min-w-0">
             <p className="truncate font-medium text-ink">{task.title}</p>
             {task.description && (
-              <p className="mt-0.5 max-w-md truncate text-xs text-muted">{task.description}</p>
+              <p className="mt-0.5 max-w-md truncate text-[13px] text-muted">{task.description}</p>
             )}
           </div>
         ),
@@ -122,8 +122,9 @@ export function TasksPage() {
         key: 'due_date',
         header: 'Due',
         sortable: true,
+        className: 'font-mono tnum text-[13px]',
         render: (task) => (
-          <span className={task.is_overdue ? 'font-medium text-red-600' : 'text-muted'}>
+          <span className={task.is_overdue ? 'font-medium text-sig-red' : 'text-muted'}>
             {formatDate(task.due_date)}
           </span>
         ),
@@ -132,13 +133,15 @@ export function TasksPage() {
         key: 'created_at',
         header: 'Created',
         sortable: true,
-        render: (task) => <span className="text-muted">{formatDate(task.created_at)}</span>,
+        className: 'font-mono tnum text-[13px] text-muted',
+        render: (task) => formatDate(task.created_at),
       },
       {
         key: 'updated_at',
         header: 'Updated',
         sortable: true,
-        render: (task) => <span className="text-muted">{formatDateTime(task.updated_at)}</span>,
+        className: 'font-mono tnum text-[13px] text-muted',
+        render: (task) => formatDateTime(task.updated_at),
       },
     ],
     [],
@@ -150,18 +153,20 @@ export function TasksPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Tasks</h1>
-          <p className="mt-1 text-sm text-muted">
-            {data ? `${data.total} task${data.total === 1 ? '' : 's'} match this view` : 'Loading…'}
+          <h1 className="font-display text-[26px] leading-tight font-semibold tracking-tight text-ink">
+            Tasks
+          </h1>
+          <p className="mt-0.5 text-sm text-muted">
+            {data ? `${data.total} task${data.total === 1 ? '' : 's'} in this view` : 'Loading…'}
           </p>
         </div>
         <Button onClick={() => setEditing('new')}>New task</Button>
       </div>
 
-      <div className="rounded-2xl border border-line bg-white p-5 shadow-sm">
+      <div className="rounded-lg border border-rule bg-surface p-4">
         <TaskFilters
           filters={{ ...filters, search: searchText }}
           onChange={({ search, ...rest }) => {
@@ -175,7 +180,7 @@ export function TasksPage() {
       {error ? (
         <ErrorState error={error} onRetry={reload} />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-rule bg-surface">
           <DataTable
             columns={columns}
             rows={data?.items ?? []}
@@ -183,6 +188,7 @@ export function TasksPage() {
             sort={{ sortBy: filters.sort_by, order: filters.order }}
             onSortChange={({ sortBy, order }) => update({ sort_by: sortBy, order })}
             onRowClick={(task) => setOpenTaskId(task.id)}
+            rowAccent={(task) => priorityColor(task.priority)}
             empty={
               <EmptyState
                 title="No tasks match these filters"

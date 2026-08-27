@@ -1,22 +1,23 @@
 import { useNavigate } from 'react-router-dom'
 import { UserCell } from '../components/Avatar'
-import { PriorityBadge, StatusBadge } from '../components/TaskBadges'
-import { Card, StatCard } from '../components/ui/Card'
+import { StatusBadge } from '../components/TaskBadges'
+import { Card, Readout, ReadoutCell } from '../components/ui/Card'
 import { DataTable } from '../components/ui/DataTable'
 import { EmptyState, ErrorState } from '../components/ui/States'
 import { useCurrentUser } from '../context/CurrentUserContext'
 import { useApi } from '../hooks/useApi'
+import { TONE_COLOR, priorityColor } from '../lib/constants'
 import { formatDate } from '../lib/format'
 import { dashboardService } from '../services/dashboard'
 import { taskService } from '../services/tasks'
 
-const CARDS = [
-  { key: 'total', label: 'Total tasks', tone: 'slate', query: {} },
-  { key: 'pending', label: 'Pending', tone: 'slate', query: { status: 'pending' } },
-  { key: 'in_progress', label: 'In progress', tone: 'blue', query: { status: 'in_progress' } },
-  { key: 'completed', label: 'Completed', tone: 'green', query: { status: 'completed' } },
-  { key: 'blocked', label: 'Blocked', tone: 'red', query: { status: 'blocked' } },
-  { key: 'overdue', label: 'Overdue', tone: 'amber', query: { overdue: 'true' } },
+const CELLS = [
+  { key: 'total', label: 'Total', query: {} },
+  { key: 'pending', label: 'Pending', accent: TONE_COLOR.neutral, query: { status: 'pending' } },
+  { key: 'in_progress', label: 'In progress', accent: TONE_COLOR.blue, query: { status: 'in_progress' } },
+  { key: 'completed', label: 'Completed', accent: TONE_COLOR.green, query: { status: 'completed' } },
+  { key: 'blocked', label: 'Blocked', accent: TONE_COLOR.red, query: { status: 'blocked' } },
+  { key: 'overdue', label: 'Overdue', accent: TONE_COLOR.amber, query: { overdue: 'true' } },
 ]
 
 const COLUMNS = [
@@ -26,26 +27,24 @@ const COLUMNS = [
     render: (task) => <span className="font-medium text-ink">{task.title}</span>,
   },
   { key: 'assignee', header: 'Assignee', render: (task) => <UserCell user={task.assignee} /> },
-  { key: 'priority', header: 'Priority', render: (task) => <PriorityBadge value={task.priority} /> },
   { key: 'status', header: 'Status', render: (task) => <StatusBadge value={task.status} /> },
   {
     key: 'due_date',
     header: 'Due',
+    className: 'font-mono tnum text-[13px]',
     render: (task) => (
-      <span className={task.is_overdue ? 'font-medium text-red-600' : 'text-muted'}>
+      <span className={task.is_overdue ? 'font-medium text-sig-red' : 'text-muted'}>
         {formatDate(task.due_date)}
       </span>
     ),
   },
 ]
 
-function TaskPreview({ title, action, ...listProps }) {
-  const { data, loading, error, reload } = listProps
-
+function TaskPreview({ title, action, data, loading, error, reload }) {
   return (
     <Card title={title} action={action} bodyClassName="">
       {error ? (
-        <div className="p-5">
+        <div className="p-4">
           <ErrorState error={error} onRetry={reload} />
         </div>
       ) : (
@@ -53,6 +52,8 @@ function TaskPreview({ title, action, ...listProps }) {
           columns={COLUMNS}
           rows={data?.items ?? []}
           loading={loading}
+          minWidth={460}
+          rowAccent={(task) => priorityColor(task.priority)}
           empty={<EmptyState title="Nothing here" description="No tasks to show yet." />}
         />
       )}
@@ -79,59 +80,56 @@ export function DashboardPage() {
 
   const goToTasks = (query) => navigate(`/tasks?${new URLSearchParams(query)}`)
 
+  const viewAll = (query) => (
+    <button
+      onClick={() => goToTasks(query)}
+      className="text-[13px] font-medium text-ink underline underline-offset-2 hover:text-muted"
+    >
+      View all
+    </button>
+  )
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted">
-          Where the team's work stands right now. Select a card to open that view.
+        <h1 className="font-display text-[26px] leading-tight font-semibold tracking-tight text-ink">
+          Dashboard
+        </h1>
+        <p className="mt-0.5 text-sm text-muted">
+          Where the team stands right now. Select any figure to open that view.
         </p>
       </div>
 
       {stats.error && <ErrorState error={stats.error} onRetry={stats.reload} />}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {CARDS.map((card) => (
-          <StatCard
-            key={card.key}
-            label={card.label}
-            tone={card.tone}
-            value={stats.loading ? '—' : (stats.data?.[card.key] ?? 0)}
-            onClick={() => goToTasks(card.query)}
+      <Readout>
+        {CELLS.map((cell) => (
+          <ReadoutCell
+            key={cell.key}
+            label={cell.label}
+            accent={cell.accent}
+            value={stats.loading ? '—' : (stats.data?.[cell.key] ?? 0)}
+            onClick={() => goToTasks(cell.query)}
           />
         ))}
-        <StatCard
-          label="Assigned to me"
-          tone="brand"
+        <ReadoutCell
+          label="Mine"
+          accent="var(--color-ink)"
           value={stats.loading ? '—' : (stats.data?.assigned_to_me ?? 0)}
           hint={currentUser?.name}
           onClick={() => goToTasks({ assignee: currentUserId })}
         />
-      </div>
+      </Readout>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-2">
         <TaskPreview
           title="My next tasks"
-          action={
-            <button
-              onClick={() => goToTasks({ assignee: currentUserId })}
-              className="text-xs font-medium text-brand hover:underline"
-            >
-              View all
-            </button>
-          }
+          action={viewAll({ assignee: currentUserId })}
           {...mine}
         />
         <TaskPreview
-          title="Needs attention · overdue"
-          action={
-            <button
-              onClick={() => goToTasks({ overdue: 'true' })}
-              className="text-xs font-medium text-brand hover:underline"
-            >
-              View all
-            </button>
-          }
+          title="Overdue"
+          action={viewAll({ overdue: 'true' })}
           {...attention}
         />
       </div>

@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useCurrentUser } from '../context/CurrentUserContext'
-import { Avatar } from './Avatar'
+import { initials } from '../lib/format'
 
 const NAV = [
   { to: '/', label: 'Dashboard', end: true },
@@ -13,15 +13,17 @@ function CurrentUserPicker() {
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar user={currentUser} />
+      <span className="grid size-7 shrink-0 place-items-center rounded bg-console-line font-mono text-[11px] font-medium text-white">
+        {currentUser ? initials(currentUser.name) : '··'}
+      </span>
       <select
         value={currentUserId ?? ''}
         onChange={(e) => setCurrentUserId(Number(e.target.value))}
         aria-label="Current user"
-        className="rounded-lg border border-line bg-white px-2 py-1.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+        className="rounded border border-console-line bg-transparent px-2 py-1 text-[13px] text-white outline-none transition-colors hover:border-console-dim"
       >
         {users.map((user) => (
-          <option key={user.id} value={user.id}>
+          <option key={user.id} value={user.id} className="bg-console text-white">
             {user.name}
           </option>
         ))}
@@ -32,25 +34,30 @@ function CurrentUserPicker() {
 
 export function Layout() {
   return (
-    <div className="min-h-screen bg-canvas">
-      <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-brand text-sm font-bold text-white">
-              T
+    <div className="min-h-screen bg-ground">
+      {/* A slim graphite bar frames the light work surface below it. */}
+      <header className="sticky top-0 z-40 bg-console">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-8 gap-y-2 px-4 py-2.5 sm:px-6">
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-[15px] font-bold tracking-tight text-white">
+              Taskdesk
             </span>
-            <span className="text-sm font-semibold tracking-tight text-ink">Taskdesk</span>
+            <span className="font-mono text-[10px] tracking-[0.14em] text-console-dim uppercase">
+              Internal
+            </span>
           </div>
 
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-0.5">
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                    isActive ? 'bg-brand-soft text-brand' : 'text-muted hover:text-ink'
+                  `rounded px-2.5 py-1 text-[13px] font-medium transition-colors ${
+                    isActive
+                      ? 'bg-white/10 text-white'
+                      : 'text-console-dim hover:text-white'
                   }`
                 }
               >
@@ -65,7 +72,7 @@ export function Layout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <main className="mx-auto max-w-[1400px] px-4 py-7 sm:px-6">
         <Outlet />
       </main>
     </div>

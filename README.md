@@ -22,9 +22,9 @@ tasks from one dashboard.
 ## Features
 
 **Dashboard** — total, pending, in progress, completed, blocked and overdue task counts, plus
-the count assigned to the current user. Every card is a shortcut: selecting one opens the task
-list already filtered to it. Below the cards are two previews — the current user's next tasks by
-due date, and everything overdue.
+the count assigned to the current user, in a single readout strip. Every figure is a shortcut:
+selecting one opens the task list already filtered to it. Below it are two previews — the
+current user's next tasks by due date, and everything overdue.
 
 **Task management** — create, edit and delete tasks; assign to a team member; set priority,
 status, due date and description; add notes/comments in a thread on the task.
@@ -263,10 +263,10 @@ The app is built so the next internal tool can start from this layer rather than
 | `Button` | 4 variants, 2 sizes |
 | `Input` `Textarea` `Select` | shared label / hint / error treatment |
 | `Modal` | focus-safe, Escape to close, scroll lock |
-| `DataTable` | driven by a `columns` array with per-column `render`; optional sorting and row clicks |
+| `DataTable` | driven by a `columns` array with per-column `render`; optional sorting, row clicks, and a `rowAccent` colour rail |
 | `Pagination` | "showing x–y of n" plus page controls |
-| `Card` `StatCard` | section container and metric tile |
-| `Badge` | 5 colour tones |
+| `Card` `Readout` `ReadoutCell` | section container, and the status-board readout strip |
+| `Badge` | signal mark — a colour dot plus label, across 5 tones |
 | `Spinner` `EmptyState` `ErrorState` | consistent loading, empty and failure states |
 
 **`lib/api.js`** — one `fetch` wrapper handling base URL, query-string building (dropping empty
@@ -307,6 +307,12 @@ so the response stays the same size whether the table holds 24 rows or 24,000.
 **Priority sorts by rank, not alphabetically.** A plain `ORDER BY priority` puts `high` before
 `urgent` and `low` before `medium`, which is wrong. A SQL `CASE` maps each value to a rank so
 `urgent > high > medium > low`.
+
+**Colour is reserved for signal.** Buttons, navigation and focus rings are all neutral graphite,
+so the only saturated colour anywhere in the interface encodes status or priority. Each row
+carries a priority rail on its leading edge, which turns the task list into a strip that can be
+triaged at a glance. Dates and counts are set in a monospace face with tabular figures so
+columns align.
 
 **Filter state lives in the URL.** `/tasks?status=blocked&priority=urgent` is shareable and
 survives a refresh. The search box keeps local state and only writes to the URL once typing

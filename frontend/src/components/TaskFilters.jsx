@@ -13,13 +13,13 @@ export function TaskFilters({ filters, onChange, onReset }) {
       <div className="sm:col-span-2">
         <Input
           label="Search"
-          placeholder="Title or description…"
+          placeholder="Title or description"
           value={filters.search}
           onChange={set('search')}
         />
       </div>
-      <Select label="Status" placeholder="Any status" options={STATUSES} value={filters.status} onChange={set('status')} />
-      <Select label="Priority" placeholder="Any priority" options={PRIORITIES} value={filters.priority} onChange={set('priority')} />
+      <Select label="Status" placeholder="Any" options={STATUSES} value={filters.status} onChange={set('status')} />
+      <Select label="Priority" placeholder="Any" options={PRIORITIES} value={filters.priority} onChange={set('priority')} />
       <Select
         label="Assignee"
         placeholder="Anyone"
@@ -29,10 +29,10 @@ export function TaskFilters({ filters, onChange, onReset }) {
       />
       <div className="flex items-end gap-2">
         <div className="flex-1">
-          <Select label="Sort by" options={SORT_OPTIONS} value={filters.sort_by} onChange={set('sort_by')} />
+          <Select label="Sort" options={SORT_OPTIONS} value={filters.sort_by} onChange={set('sort_by')} />
         </div>
         {dirty && (
-          <Button variant="ghost" onClick={onReset} title="Clear filters">
+          <Button variant="ghost" size="sm" onClick={onReset} className="mb-0.5">
             Clear
           </Button>
         )}

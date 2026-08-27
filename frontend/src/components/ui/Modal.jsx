@@ -15,27 +15,29 @@ export function Modal({ open, title, onClose, children, footer, width = 'max-w-l
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 p-4 backdrop-blur-sm sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-console/50 p-4 sm:p-8">
       <div
-        className={`w-full ${width} my-auto rounded-2xl bg-white shadow-2xl ring-1 ring-line`}
+        className={`w-full ${width} my-auto rounded-lg border border-rule bg-surface`}
         role="dialog"
         aria-modal="true"
       >
-        <header className="flex items-center justify-between border-b border-line px-6 py-4">
-          <h2 className="text-base font-semibold text-ink">{title}</h2>
+        <header className="flex items-start justify-between gap-4 border-b border-rule px-5 py-3">
+          <h2 className="font-display text-[15px] font-semibold text-ink">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md p-1 text-muted transition hover:bg-canvas hover:text-ink"
+            className="-mr-1 rounded p-1 text-muted transition-colors hover:bg-ground hover:text-ink"
           >
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
             </svg>
           </button>
         </header>
-        <div className="px-6 py-5">{children}</div>
+        <div className="px-5 py-4">{children}</div>
         {footer && (
-          <footer className="flex justify-end gap-2 border-t border-line px-6 py-4">{footer}</footer>
+          <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-rule px-5 py-3">
+            {footer}
+          </footer>
         )}
       </div>
     </div>

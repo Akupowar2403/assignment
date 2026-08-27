@@ -1,16 +1,17 @@
-const TONES = {
-  slate: 'bg-slate-100 text-slate-700 ring-slate-200',
-  blue: 'bg-blue-50 text-blue-700 ring-blue-200',
-  green: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  amber: 'bg-amber-50 text-amber-700 ring-amber-200',
-  red: 'bg-red-50 text-red-700 ring-red-200',
-}
+import { TONE_COLOR } from '../../lib/constants'
 
-export function Badge({ tone = 'slate', children }) {
+/**
+ * A signal mark: a colour dot plus a label. Deliberately not a filled pill —
+ * dozens of pills in a table shout over each other, dots scan cleanly.
+ */
+export function Badge({ tone = 'neutral', children }) {
   return (
-    <span
-      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${TONES[tone]}`}
-    >
+    <span className="inline-flex items-center gap-1.5 text-[13px] whitespace-nowrap text-ink">
+      <span
+        aria-hidden
+        className="size-2 shrink-0 rounded-full"
+        style={{ background: TONE_COLOR[tone] }}
+      />
       {children}
     </span>
   )

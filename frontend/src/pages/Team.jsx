@@ -95,7 +95,8 @@ const COLUMNS = [
   {
     key: 'created_at',
     header: 'Joined',
-    render: (user) => <span className="text-muted">{formatDate(user.created_at)}</span>,
+    className: 'font-mono tnum text-[13px] text-muted',
+    render: (user) => formatDate(user.created_at),
   },
 ]
 
@@ -104,17 +105,19 @@ export function TeamPage() {
   const [adding, setAdding] = useState(false)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Team</h1>
-          <p className="mt-1 text-sm text-muted">People who can be assigned tasks.</p>
+          <h1 className="font-display text-[26px] leading-tight font-semibold tracking-tight text-ink">
+            Team
+          </h1>
+          <p className="mt-0.5 text-sm text-muted">People who can be assigned tasks.</p>
         </div>
         <Button onClick={() => setAdding(true)}>Add member</Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <DataTable columns={COLUMNS} rows={users} loading={loading} />
+      <div className="overflow-hidden rounded-lg border border-rule bg-surface">
+        <DataTable columns={COLUMNS} rows={users} loading={loading} minWidth={480} />
       </div>
 
       <AddUserModal

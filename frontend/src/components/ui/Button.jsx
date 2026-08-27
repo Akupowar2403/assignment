@@ -1,19 +1,20 @@
+// Chrome stays neutral so the only colour on screen is task signal.
 const VARIANTS = {
-  primary: 'bg-brand text-white hover:brightness-110 shadow-sm',
-  secondary: 'bg-white text-ink border border-line hover:bg-canvas',
-  ghost: 'text-muted hover:bg-brand-soft hover:text-brand',
-  danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
+  primary: 'bg-ink text-white hover:bg-ink/90',
+  secondary: 'bg-surface text-ink ring-1 ring-rule hover:bg-ground',
+  ghost: 'text-muted hover:bg-ground hover:text-ink',
+  danger: 'bg-sig-red text-white hover:brightness-95',
 }
 
 const SIZES = {
-  sm: 'h-8 px-3 text-xs',
-  md: 'h-10 px-4 text-sm',
+  sm: 'h-8 px-2.5 text-[13px]',
+  md: 'h-9 px-3.5 text-sm',
 }
 
 export function Button({ variant = 'primary', size = 'md', className = '', ...props }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
       {...props}
     />
   )

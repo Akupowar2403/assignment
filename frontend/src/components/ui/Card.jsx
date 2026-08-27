@@ -1,9 +1,9 @@
-export function Card({ title, action, children, className = '', bodyClassName = 'p-5' }) {
+export function Card({ title, action, children, className = '', bodyClassName = 'p-4' }) {
   return (
-    <section className={`rounded-2xl border border-line bg-white shadow-sm ${className}`}>
+    <section className={`rounded-lg border border-rule bg-surface ${className}`}>
       {(title || action) && (
-        <header className="flex items-center justify-between border-b border-line px-5 py-3.5">
-          <h2 className="text-sm font-semibold text-ink">{title}</h2>
+        <header className="flex items-center justify-between border-b border-rule px-4 py-2.5">
+          <h2 className="font-mono text-[11px] tracking-[0.08em] text-muted uppercase">{title}</h2>
           {action}
         </header>
       )}
@@ -12,27 +12,39 @@ export function Card({ title, action, children, className = '', bodyClassName = 
   )
 }
 
-export function StatCard({ label, value, tone = 'slate', hint, active, onClick }) {
-  const tones = {
-    slate: 'text-slate-700',
-    blue: 'text-blue-600',
-    green: 'text-emerald-600',
-    amber: 'text-amber-600',
-    red: 'text-red-600',
-    brand: 'text-brand',
-  }
+/**
+ * A readout panel: cells share one frame and are divided by rules, the way a
+ * status board reads, rather than floating as separate cards.
+ */
+export function Readout({ children }) {
+  return (
+    <div className="grid grid-cols-2 divide-x divide-y divide-rule overflow-hidden rounded-lg border border-rule bg-surface sm:grid-cols-4 lg:grid-cols-7 lg:divide-y-0">
+      {children}
+    </div>
+  )
+}
 
+export function ReadoutCell({ label, value, accent, hint, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-        active ? 'border-brand ring-2 ring-brand/20' : 'border-line'
-      }`}
+      className="relative px-4 py-4 text-left transition-colors hover:bg-ground"
     >
-      <p className="text-xs font-medium tracking-wide text-muted uppercase">{label}</p>
-      <p className={`mt-2 text-3xl font-semibold tabular-nums ${tones[tone]}`}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {accent && (
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[3px]"
+          style={{ background: accent }}
+        />
+      )}
+      <span className="block font-mono text-[11px] tracking-[0.08em] text-muted uppercase">
+        {label}
+      </span>
+      <span className="tnum mt-2 block font-display text-[32px] leading-none font-semibold text-ink">
+        {value}
+      </span>
+      {hint && <span className="mt-1.5 block truncate text-xs text-muted">{hint}</span>}
     </button>
   )
 }
